@@ -16,7 +16,7 @@ class Ghost {
         this.width = width;
         this.height = height;
         this.speed = speed;
-        this.direction = DIRECTION_RIGHT;
+        this.direction = directions.right;
         this.imageX = imageX;
         this.imageY = imageY;
         this.imageHeight = imageHeight;
@@ -99,16 +99,16 @@ class Ghost {
         let isCollided = false;
         if (
             map[parseInt(this.y / oneBlockSize)][
-                parseInt(this.x / oneBlockSize)
+            parseInt(this.x / oneBlockSize)
             ] == 1 ||
             map[parseInt(this.y / oneBlockSize + 0.9999)][
-                parseInt(this.x / oneBlockSize)
+            parseInt(this.x / oneBlockSize)
             ] == 1 ||
             map[parseInt(this.y / oneBlockSize)][
-                parseInt(this.x / oneBlockSize + 0.9999)
+            parseInt(this.x / oneBlockSize + 0.9999)
             ] == 1 ||
             map[parseInt(this.y / oneBlockSize + 0.9999)][
-                parseInt(this.x / oneBlockSize + 0.9999)
+            parseInt(this.x / oneBlockSize + 0.9999)
             ] == 1
         ) {
             isCollided = true;
@@ -118,27 +118,30 @@ class Ghost {
 
     changeDirectionIfPossible() {
         let tempDirection = this.direction;
+
         this.direction = this.calculateNewDirection(
             map,
             parseInt(this.target.x / oneBlockSize),
             parseInt(this.target.y / oneBlockSize)
         );
+
         if (typeof this.direction == "undefined") {
             this.direction = tempDirection;
             return;
         }
+        
         if (
             this.getMapY() != this.getMapYRightSide() &&
-            (this.direction == DIRECTION_LEFT ||
-                this.direction == DIRECTION_RIGHT)
+            (this.direction == directions.left ||
+                this.direction == directions.right)
         ) {
-            this.direction = DIRECTION_UP;
+            this.direction = directions.up;
         }
         if (
             this.getMapX() != this.getMapXRightSide() &&
-            this.direction == DIRECTION_UP
+            this.direction == directions.up
         ) {
-            this.direction = DIRECTION_LEFT;
+            this.direction = directions.left;
         }
         this.moveForwards();
         if (this.checkCollisions()) {
@@ -147,11 +150,11 @@ class Ghost {
         } else {
             this.moveBackwards();
         }
-        console.log(this.direction);
     }
 
     calculateNewDirection(map, destX, destY) {
         let mp = [];
+
         for (let i = 0; i < map.length; i++) {
             mp[i] = map[i].slice();
         }
@@ -192,7 +195,7 @@ class Ghost {
             mp[poped.y][poped.x - 1] != 1
         ) {
             let tempMoves = poped.moves.slice();
-            tempMoves.push(DIRECTION_LEFT);
+            tempMoves.push(directions.left);
             queue.push({ x: poped.x - 1, y: poped.y, moves: tempMoves });
         }
         if (
@@ -201,7 +204,7 @@ class Ghost {
             mp[poped.y][poped.x + 1] != 1
         ) {
             let tempMoves = poped.moves.slice();
-            tempMoves.push(DIRECTION_RIGHT);
+            tempMoves.push(directions.right);
             queue.push({ x: poped.x + 1, y: poped.y, moves: tempMoves });
         }
         if (
@@ -210,7 +213,7 @@ class Ghost {
             mp[poped.y - 1][poped.x] != 1
         ) {
             let tempMoves = poped.moves.slice();
-            tempMoves.push(DIRECTION_UP);
+            tempMoves.push(directions.up);
             queue.push({ x: poped.x, y: poped.y - 1, moves: tempMoves });
         }
         if (
@@ -219,7 +222,7 @@ class Ghost {
             mp[poped.y + 1][poped.x] != 1
         ) {
             let tempMoves = poped.moves.slice();
-            tempMoves.push(DIRECTION_BOTTOM);
+            tempMoves.push(directions.bottom);
             queue.push({ x: poped.x, y: poped.y + 1, moves: tempMoves });
         }
         return queue;
@@ -265,15 +268,6 @@ class Ghost {
         );
         canvasContext.restore();
         canvasContext.beginPath();
-        canvasContext.strokeStyle = "red";
-        canvasContext.arc(
-            this.x + oneBlockSize / 2,
-            this.y + oneBlockSize / 2,
-            this.range * oneBlockSize,
-            0,
-            2 * Math.PI
-        );
-        canvasContext.stroke();
     }
 }
 

@@ -41,16 +41,16 @@ class Pacman {
 
     moveBackwards() {
         switch (this.direction) {
-            case DIRECTION_RIGHT: // Right
+            case directions.right: // Right
                 this.x -= this.speed;
                 break;
-            case DIRECTION_UP: // Up
+            case directions.up: // Up
                 this.y += this.speed;
                 break;
-            case DIRECTION_LEFT: // Left
+            case directions.left: // Left
                 this.x += this.speed;
                 break;
-            case DIRECTION_BOTTOM: // Bottom
+            case directions.bottom: // Bottom
                 this.y -= this.speed;
                 break;
         }
@@ -58,16 +58,16 @@ class Pacman {
 
     moveForwards() {
         switch (this.direction) {
-            case DIRECTION_RIGHT: // Right
+            case directions.right: // Right
                 this.x += this.speed;
                 break;
-            case DIRECTION_UP: // Up
+            case directions.up: // Up
                 this.y -= this.speed;
                 break;
-            case DIRECTION_LEFT: // Left
+            case directions.left: // Left
                 this.x -= this.speed;
                 break;
-            case DIRECTION_BOTTOM: // Bottom
+            case directions.bottom: // Bottom
                 this.y += this.speed;
                 break;
         }

@@ -1,21 +1,26 @@
+//const [btn1Player, btn2Player] = ("pl1", "pl2").map(i => document.querySelector(`#${i}`))
 const canvas = document.querySelector("#canvas");
 const canvasContext = canvas.getContext("2d");
-
 const pacmanFrames = document.querySelector("#animation");
 const ghostFrames = document.querySelector("#ghosts");
+
+//btn1Player.addEventListener("click", )
+//btn2Player.addEventListener("click", )
 
 let createRect = (x, y, width, height, color) => {
     canvasContext.fillStyle = color;
     canvasContext.fillRect(x, y, width, height);
 };
 
-const DIRECTION_RIGHT = 4;
-const DIRECTION_UP = 3;
-const DIRECTION_LEFT = 2;
-const DIRECTION_BOTTOM = 1;
+const directions = {
+    right: 4,
+    up: 3,
+    left: 2,
+    bottom: 1,
+}
 
 let lives = 3;
-let ghostCount = 8;
+let ghostCount = 4;
 let ghostImageLocations = [
     { x: 0, y: 0 },
     { x: 176, y: 0 },
@@ -33,9 +38,6 @@ let wallSpaceWidth = oneBlockSize / 1.6;
 let wallOffset = (oneBlockSize - wallSpaceWidth) / 2;
 let wallInnerColor = "black";
 
-// we now create the map of the walls,
-// if 1 wall, if 0 not wall
-// 21 columns // 23 rows
 let map = [
     [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
     [1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1],
@@ -46,9 +48,9 @@ let map = [
     [1, 2, 2, 2, 2, 2, 1, 2, 2, 2, 1, 2, 2, 2, 1, 2, 2, 2, 2, 2, 1],
     [1, 1, 1, 1, 1, 2, 1, 1, 1, 2, 1, 2, 1, 1, 1, 2, 1, 1, 1, 1, 1],
     [0, 0, 0, 0, 1, 2, 1, 2, 2, 2, 2, 2, 2, 2, 1, 2, 1, 0, 0, 0, 0],
-    [1, 1, 1, 1, 1, 2, 1, 2, 1, 1, 2, 1, 1, 2, 1, 2, 1, 1, 1, 1, 1],
-    [1, 2, 2, 2, 2, 2, 2, 2, 1, 2, 2, 2, 1, 2, 2, 2, 2, 2, 2, 2, 1],
-    [1, 1, 1, 1, 1, 2, 1, 2, 1, 2, 2, 2, 1, 2, 1, 2, 1, 1, 1, 1, 1],
+    [1, 1, 1, 1, 1, 2, 1, 2, 1, 1, 0, 1, 1, 2, 1, 2, 1, 1, 1, 1, 1],
+    [1, 2, 2, 2, 2, 2, 2, 2, 1, 0, 0, 0, 1, 2, 2, 2, 2, 2, 2, 2, 1],
+    [1, 1, 1, 1, 1, 2, 1, 2, 1, 0, 0, 0, 1, 2, 1, 2, 1, 1, 1, 1, 1],
     [0, 0, 0, 0, 1, 2, 1, 2, 1, 1, 1, 1, 1, 2, 1, 2, 1, 0, 0, 0, 0],
     [0, 0, 0, 0, 1, 2, 1, 2, 2, 2, 2, 2, 2, 2, 1, 2, 1, 0, 0, 0, 0],
     [1, 1, 1, 1, 1, 2, 2, 2, 1, 1, 1, 1, 1, 2, 2, 2, 1, 1, 1, 1, 1],
@@ -62,6 +64,7 @@ let map = [
     [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
 ];
 
+
 let randomTargetsForGhosts = [
     { x: 1 * oneBlockSize, y: 1 * oneBlockSize },
     { x: 1 * oneBlockSize, y: (map.length - 2) * oneBlockSize },
@@ -71,12 +74,6 @@ let randomTargetsForGhosts = [
         y: (map.length - 2) * oneBlockSize,
     },
 ];
-
-// for (let i = 0; i < map.length; i++) {
-//     for (let j = 0; j < map[0].length; j++) {
-//         map[i][j] = 2;
-//     }
-// }
 
 let createNewPacman = () => {
     pacman = new Pacman(
@@ -91,6 +88,26 @@ let createNewPacman = () => {
 let gameLoop = () => {
     update();
     draw();
+
+    //isfinish
+    let numberLines = 0;
+
+    for (let i = 0; i < map.length; i++) {
+        if (map[i].includes(2)) {
+            numberLines++
+        }
+    }
+
+    if (numberLines === 0) {
+        document.body.innerHTML = `
+        <div style="background-color: #98FB98; width: 600px; height: 600px; display: flex; align-items: center; justify-content: center; flex-direction: column">
+            <p style="font-size: 3rem; color: #fff; text-align: center">Parabéns você salvou a natureza</p>
+            <button onclick="location.reload()">Reiniciar</button>
+        </div>
+        `
+
+        clearInterval(gameInterval)
+    }
 };
 
 let gameInterval = setInterval(gameLoop, 1000 / fps);
@@ -102,15 +119,27 @@ let restartPacmanAndGhosts = () => {
 
 let onGhostCollision = () => {
     lives--;
+
     restartPacmanAndGhosts();
-    if (lives == 0) {
+
+    if (lives <= 0) {
+        document.body.innerHTML = `
+            <div style="background-color: #f00; width: 600px; height: 600px; display: flex; align-items: center; justify-content: center; flex-direction: column">
+                <p style="font-size: 3rem; color: #fff; text-align: center">Game Over</p>
+                <button onclick="location.reload()">Reiniciar</button>
+            </div>
+        `
+
+        clearInterval(gameInterval)
     }
 };
 
 let update = () => {
     pacman.moveProcess();
     pacman.eat();
+
     updateGhosts();
+
     if (pacman.checkGhostCollision(ghosts)) {
         onGhostCollision();
     }
@@ -125,7 +154,7 @@ let drawFoods = () => {
                     i * oneBlockSize + oneBlockSize / 3,
                     oneBlockSize / 3,
                     oneBlockSize / 3,
-                    "#FEB897"
+                    "#98FB98"
                 );
             }
         }
@@ -230,7 +259,8 @@ let drawWalls = () => {
 
 let createGhosts = () => {
     ghosts = [];
-    for (let i = 0; i < ghostCount * 2; i++) {
+
+    for (let i = 0; i < ghostCount; i++) {
         let newGhost = new Ghost(
             9 * oneBlockSize + (i % 2 == 0 ? 0 : 1) * oneBlockSize,
             10 * oneBlockSize + (i % 2 == 0 ? 0 : 1) * oneBlockSize,
@@ -243,29 +273,35 @@ let createGhosts = () => {
             116,
             6 + i
         );
+
         ghosts.push(newGhost);
     }
 };
 
-createNewPacman();
-createGhosts();
-gameLoop();
+function initGame() {
+    createNewPacman();
+    createGhosts();
+    gameLoop();
+}
 
 window.addEventListener("keydown", (event) => {
     let k = event.keyCode;
+
     setTimeout(() => {
         if (k == 37 || k == 65) {
             // left arrow or a
-            pacman.nextDirection = DIRECTION_LEFT;
+            pacman.nextDirection = directions.left;
         } else if (k == 38 || k == 87) {
             // up arrow or w
-            pacman.nextDirection = DIRECTION_UP;
+            pacman.nextDirection = directions.up;
         } else if (k == 39 || k == 68) {
             // right arrow or d
-            pacman.nextDirection = DIRECTION_RIGHT;
+            pacman.nextDirection = directions.right;
         } else if (k == 40 || k == 83) {
             // bottom arrow or s
-            pacman.nextDirection = DIRECTION_BOTTOM;
+            pacman.nextDirection = directions.bottom
         }
-    }, 1);
+    }, .5);
 });
+
+initGame()
